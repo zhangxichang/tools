@@ -1,0 +1,29 @@
+name: 发布
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: read
+jobs:
+  build-release:
+    name: 构建与发布
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cargo-bins/cargo-binstall@main
+      - uses: oven-sh/setup-bun@v2
+      - name: 初始化项目
+        run: |
+          rustup target install wasm32-unknown-unknown
+          cargo binstall trunk
+          bun install
+      - name: 构建
+        run: trunk build --release
+      - name: 发布
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: latest
+          packageManager: bun
+          accountId: ${{secrets.CLOUDFLARE_ACCOUNT_ID}}
+          apiToken: ${{secrets.CLOUDFLARE_API_TOKEN}}

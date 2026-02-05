@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "type": "module",
+  "stackblitz": {
+    "installDependencies": false,
+    "startCommand": false
+  },
+  "scripts": {
+    "dev": "trunk serve",
+    "build": "trunk build --release",
+    "preview": "wrangler dev"
+  },
+  "devDependencies": {
+    "wrangler": "^4.59.2"
+  }
+}
