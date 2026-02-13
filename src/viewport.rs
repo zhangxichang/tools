@@ -6,7 +6,7 @@ use eyre::Result;
 
 pub struct Viewport {
     about_open: bool,
-    window_open: bool,
+    android_key_generation_open: bool,
 }
 impl Viewport {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Result<Self> {
@@ -29,7 +29,7 @@ impl Viewport {
         egui_extras::install_image_loaders(&cc.egui_ctx);
         Ok(Self {
             about_open: false,
-            window_open: false,
+            android_key_generation_open: false,
         })
     }
 }
@@ -44,27 +44,24 @@ impl eframe::App for Viewport {
             });
             ui.add_space(1.);
         });
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.group(|ui| {
-                ui.label("按时工具");
-                ui.toggle_value(&mut self.window_open, "一个工具");
-            })
-        });
         if self.about_open {
             egui::Modal::new("about".into()).show(ctx, |ui| {
                 ui.heading("关于");
-                ui.label("这是一个包含各种各样工具的网站");
+                ui.label("这里有各种各样的小工具，持续更新");
                 if ui.button("关闭").clicked() {
                     self.about_open = false;
                 }
             });
         }
-        egui::Window::new("窗口")
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.toggle_value(&mut self.android_key_generation_open, "安卓密钥生成");
+        });
+        egui::Window::new("安卓密钥生成")
             .collapsible(false)
             .resizable([false, false])
-            .open(&mut self.window_open)
+            .open(&mut self.android_key_generation_open)
             .show(ctx, |ui| {
-                ui.heading("工具");
+                ui.heading("内容");
             });
     }
 }

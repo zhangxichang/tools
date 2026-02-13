@@ -5,7 +5,8 @@ use crate::viewport::Viewport;
 #[cfg(not(target_family = "wasm"))]
 pub fn run(name: impl AsRef<str>) -> Result<()> {
     use eframe::egui;
-    use eyre::eyre;
+    use eyre::{OptionExt, eyre};
+    use resvg::{tiny_skia, usvg};
     use std::sync::Arc;
 
     flexi_logger::Logger::with(flexi_logger::LogSpecification::info())
@@ -23,13 +24,26 @@ pub fn run(name: impl AsRef<str>) -> Result<()> {
         .start()
         .unwrap();
     log::info!("日志开始记录");
+    let icon_size = 512;
+    let mut icon_pixmap =
+        tiny_skia::Pixmap::new(icon_size, icon_size).ok_or_eyre("创建Pixmap错误")?;
+    resvg::render(
+        &usvg::Tree::from_data(
+            include_bytes!("../assets/images/icon.svg"),
+            &Default::default(),
+        )?,
+        Default::default(),
+        &mut icon_pixmap.as_mut(),
+    );
     eframe::run_native(
         name.as_ref(),
         eframe::NativeOptions {
             viewport: egui::ViewportBuilder::default()
-                .with_icon(Arc::new(eframe::icon_data::from_png_bytes(
-                    include_bytes!("../assets/images/icon.png"),
-                )?))
+                .with_icon(Arc::new(egui::IconData {
+                    rgba: icon_pixmap.data().to_vec(),
+                    width: icon_size,
+                    height: icon_size,
+                }))
                 .with_inner_size(egui::Vec2::new(800., 600.)),
             ..Default::default()
         },
